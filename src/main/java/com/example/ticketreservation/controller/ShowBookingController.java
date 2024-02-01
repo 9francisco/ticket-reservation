@@ -4,6 +4,8 @@ import com.example.ticketreservation.model.Show;
 import com.example.ticketreservation.service.BookingService;
 import com.example.ticketreservation.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
  * Controller for managing show bookings.
  */
 @RestController
-@RequestMapping("/api") // Define the base URL for API endpoints
+@RequestMapping("/api")
 public class ShowBookingController {
 
     private final ShowService showService;
@@ -36,8 +38,10 @@ public class ShowBookingController {
      * @return A list of available seat numbers
      */
     @GetMapping("/availability/{showNumber}")
-    public List<String> checkAvailableSeats(@PathVariable String showNumber) {
-        return bookingService.checkAvailableSeats(showNumber);
+    public ResponseEntity<List<String>> checkAvailableSeats(@PathVariable String showNumber) {
+        List<String> availableSeats = bookingService.checkAvailableSeats(showNumber);
+
+        return ResponseEntity.ok(availableSeats);
     }
 
     /**
@@ -49,12 +53,13 @@ public class ShowBookingController {
      * @return A booking confirmation message
      */
     @PostMapping("/book/{showNumber}")
-    public String bookSeats(
+    public ResponseEntity<String> bookSeats(
             @PathVariable String showNumber,
             @RequestParam String phoneNumber,
             @RequestParam List<String> selectedSeats) {
         String ticketNumber = bookingService.bookSeats(showNumber, phoneNumber, selectedSeats);
-        return "Booking successful. Ticket Number: " + ticketNumber;
+
+        return new ResponseEntity<>("Booking successful. Ticket Number: " + ticketNumber, HttpStatus.CREATED);
     }
 
     /**
@@ -65,11 +70,12 @@ public class ShowBookingController {
      * @return A cancellation confirmation message
      */
     @DeleteMapping("/cancel")
-    public String cancelBooking(
+    public ResponseEntity<String> cancelBooking(
             @RequestParam String ticketNumber,
             @RequestParam String phoneNumber) {
         bookingService.cancelBooking(ticketNumber, phoneNumber);
-        return "Booking canceled successfully.";
+
+        return ResponseEntity.ok("Booking cancelled successfully.");
     }
 
     /**
@@ -79,11 +85,12 @@ public class ShowBookingController {
      * @return A success message for show configuration
      */
     @PostMapping("/setup")
-    public String configureShow(
+    public ResponseEntity<String> configureShow(
             @RequestBody Show show) {
         showService.configureShow(show.getShowNumber(), show.getNumberOfRows(),
                 show.getSeatsPerRow(), show.getCancelWindowInMinutes());
-        return "Show configured successfully.";
+
+        return new ResponseEntity<>("Show configured successfully.", HttpStatus.CREATED);
     }
 
     /**
@@ -93,7 +100,9 @@ public class ShowBookingController {
      * @return Show details, including booked seats
      */
     @GetMapping("/view/{showNumber}")
-    public Show getShowDetails(@PathVariable String showNumber) {
-        return showService.getShowDetails(showNumber);
+    public ResponseEntity<List<String>> getShowDetails(@PathVariable String showNumber) {
+        List<String> details = showService.displayShowDetails(showNumber);
+
+        return ResponseEntity.ok(details);
     }
 }

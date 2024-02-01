@@ -107,4 +107,5 @@ The project is structured as follows:
   - `model`: Contains model classes representing Show and Booking entities.
   - `repository`: Contains repository classes for managing data.
   - `service`: Contains service classes for implementing business logic.
+  - `exception`: Contains the GlobalExceptionHandler class for handling exceptions (error responses).
 - `src/main/resources`: Contains application configuration files and templates.

@@ -7,6 +7,7 @@ import com.example.ticketreservation.repository.ShowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,25 +62,27 @@ public class ShowService {
      * @param showNumber The show number for which detailed information is requested.
      *
      */
-    public void displayShowDetails(String showNumber) {
+    public List<String> displayShowDetails(String showNumber) {
+        List<String> details = new ArrayList<>();
+
         Show show = showRepository.findByShowNumber(showNumber);
         if (show == null) {
             throw new IllegalArgumentException("Show number " + showNumber + " not found.");
         }
-        List<Booking> bookings = bookingRepository.findByShowNumber(showNumber).stream()
-                .collect(Collectors.toList());
+
+        details.add("Show Number: " + show.getShowNumber());
+
+        List<Booking> bookings = new ArrayList<>(bookingRepository.findByShowNumber(showNumber));
 
         if (bookings.isEmpty()) {
-            System.out.println("No bookings found for show " + showNumber);
-            return;
+            throw new IllegalArgumentException("No bookings found for show " + showNumber);
         }
 
-        System.out.println("Show Number: " + show.getShowNumber());
-        for (Booking booking : bookings) {
-            System.out.println("Ticket Number: " + booking.getTicketNumber() +
-                    ", Phone Number: " + booking.getPhoneNumber() +
-                    ", Seats: " + String.join(", ", booking.getSeats()));
-        }
+        bookings.forEach(booking -> details.add("Ticket Number: " + booking.getTicketNumber() +
+                ", Phone Number: " + booking.getPhoneNumber() +
+                ", Seats: " + String.join(", ", booking.getSeats())));
+
+        return details;
     }
 
     /**

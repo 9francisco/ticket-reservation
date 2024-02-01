@@ -123,7 +123,10 @@ public class TicketReservationApplication implements CommandLineRunner {
                         System.err.println("Invalid 'view' command format. Expected format: view <showNumber>");
                         return;
                     }
-                    showService.displayShowDetails(parts[1]);
+                    List<String> details = showService.displayShowDetails(parts[1]);
+                    for (String detail : details) {
+                        System.out.println(detail);
+                    }
                     break;
                 default:
                     System.err.println("Invalid command for admin. Available commands are 'setup' and 'view'.");
